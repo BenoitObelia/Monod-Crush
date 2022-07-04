@@ -1,11 +1,10 @@
 from django.urls import path
 
-from .views import contact, suggestions
+from about.views import ContactView, WhoAreWeView
 
 app_name = 'about'
 
 urlpatterns = [
-    path("contact", contact, name="contact"),
-    path("suggestions", suggestions, name="suggestions"),
-
+    path("contact", ContactView.as_view(), name="contact"),
+    path("who-are-we", WhoAreWeView.as_view(), name="who-are-we"),
 ]

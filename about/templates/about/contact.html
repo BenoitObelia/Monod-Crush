@@ -1,7 +1,54 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}Nous contacter{% endblock %}
+{% block h1 %}Nous contacter{% endblock %}
 
+<!--suppress XmlInvalidId -->
 {% block content %}
+<div class="box">
+    <div class="pb-5 mt-3">
+        <div class="block">
+            Vous avez une question, un problème ou vous pensez avoir trouvé un bug et
+            vous souhaitez nous contacter ?
+        </div>
+        <div class="block"> Vous pouvez nous contacter par message prive sur Instagram :
+            <a href="https://www.instagram.com/monodcrush.fr/" target="_blank">@monodcrush.fr</a>
+            ou utiliser le formulaire ci-dessous.
+        </div>
+    </div>
 
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+            <label class="label" for="{{ form.subject.id_for_label }}">{{ form.subject.label_tag }}</label>
+            <div class="control">
+                {% render_field form.subject class+="input" placeholder=form.subject.label %}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="{{ form.message.id_for_label }}" hidden>message</label>
+            <div class="control" aria-label="qfzesdf">
+                {% render_field form.message class+="textarea" placeholder=form.message.label %}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="{{ form.email.id_for_label }}">{{ form.email.label_tag }}</label>
+            <p class="help is-info is-large">{{ form.email.help_text|safe }}</p>
+            <div class="control">
+                {% render_field form.email class+="input" %}
+            </div>
+        </div>
+        <div class="field is-grouped is-grouped-centered mt-5">
+            <div class="control">
+                <button type="submit" class="button is-link">Envoyer</button>
+            </div>
+        </div>
+
+    </form>
+</div>
 {% endblock %}
