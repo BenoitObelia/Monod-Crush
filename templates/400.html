@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Erreur 400{% endblock %}
+
+{% block head %}
+<style>
+h1 {
+  font-size: 2em;
+  font: 900 30vmin "Consolas";
+  letter-spacing: 5vmin;
+  text-shadow: 5px 4px 0px black;
+}
+</style>
+{% endblock %}
+
+{% block page %}
+<section class="hero-body">
+    <div class="container is-max-desktop">
+
+        <h1>400</h1>
+
+        <h2 class="title is-2">Ooops... La requête est invalide</h2>
+
+        <p>La requête semble invalide... 😕, vous pouvez laisser un message ici si vous pensez avoir trouvé un bug : <a
+                href="{% url 'about:contact' %}">page de contact</a></p>
+        <p><a href="{% url 'blog:index' %}">Cliquez ici</a> pour retourner à la page d’accueil</p>
+
+    </div>
+</section>
+
+{% endblock page %}

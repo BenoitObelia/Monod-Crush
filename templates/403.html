@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Erreur 403{% endblock %}
+
+{% block head %}
+<style>
+h1 {
+  font-size: 2em;
+  font: 900 30vmin "Consolas";
+  letter-spacing: 5vmin;
+  text-shadow: 5px 4px 0px black;
+}
+</style>
+{% endblock %}
+
+{% block page %}
+<section class="hero-body">
+    <div class="container is-max-desktop">
+
+        <h1>403</h1>
+
+        <h2 class="title is-2">Ooops... Vous n'avez pas la permission d’être ici</h2>
+
+        <p>Vous semblez être perdu, <a href="{% url 'blog:index' %}">cliquez ici</a> pour retourner à la page d’accueil</p>
+
+    </div>
+</section>
+
+{% endblock page %}
