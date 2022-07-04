@@ -1,0 +1,7 @@
+{% load datetimeformat %}
+
+{% include 'blog/components/comment.html' %}
+
+<span hx-swap-oob="outerHTML:#post-{{ post.id }} .nb-of-comment" class="nb-of-comment">
+    {{ post.nb_of_comments }} commentaire{% if post.nb_of_comments > 1 %}s{% endif %}
+</span>

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from django.conf import settings
@@ -12,30 +14,28 @@ log = logging.getLogger(__name__)
 
 class Post(models.Model):
     NORMAl = 'N'
+    AWAITING_VERIFICATION = 'A'
     HIDDEN = 'H'
-    DELETED = 'D'
-
-    PUBLIC = (
-        NORMAl,
-    )
 
     STATUS_CHOICES = (
         (NORMAl, 'Normal'),
+        (AWAITING_VERIFICATION, 'En attente de vérification'),
         (HIDDEN, 'Masqué'),
-        (DELETED, 'Supprimé'),
     )
 
-    text = models.TextField(max_length=500)
+    VISIBLE_STATUSES = (NORMAl,)
+
+    text = models.TextField("contenu du post", max_length=500)
     author: CustomUser = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                            related_name='posts', verbose_name='Auteur')
-    created_at = models.DateTimeField("date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("dernière modification", auto_now=True)
     status = models.CharField("état", max_length=1, choices=STATUS_CHOICES, default=NORMAl)
     is_anonymous = models.BooleanField("post anonyme", default=True)
+    updated_at = models.DateTimeField("dernière modification", auto_now=True)
+    created_at = models.DateTimeField("date de création", auto_now_add=True)
 
-    likes: QuerySet["Like"]
-    reports: QuerySet["PostReport"]
-    comments: QuerySet["Comment"]
+    likes: QuerySet[Like]
+    reports: QuerySet[PostReport]
+    comments: QuerySet[Comment]
     objects: Manager
 
     class Meta:
@@ -43,38 +43,45 @@ class Post(models.Model):
         verbose_name_plural = "posts"
 
         permissions = (
-            ('hide_posts', "Peut masquer des posts (sans voir l'auteur)"),
-            ('edit_posts', "Peut modifier/supprimer des posts (sans voir l'auteur)"),
+            # user permission
+            ("create_posts", "Peut créer des posts"),
+            ('edit_own_posts', 'Peut modifier ses propres posts'),
+            ('delete_own_posts', 'Peut supprimer ses propres posts'),
 
-            ("view_posts_details", "Peut voir les détails des posts (dont l'auteur) (doit faire partie du staff)"),
+            # moderator permission
+            ('hide_posts_from_other_users', "Peut masquer des posts (sans voir l'auteur)"),
+            ('delete_posts_from_other_users', "Peut supprimer les posts des autres (sans voir l'auteur)"),
+
+            # admin permission
+            ("view_posts_details", "Peut voir les détails des posts (dont l'auteur)"),
         )
 
         default_permissions = ()
 
+    def reset_report(self) -> None:
+        """ Reset all reports for this post. """
+        self.reports.all().delete()
+
     @property
     def nb_of_likes(self) -> int:
+        """ Return the number of likes for this post. """
         return self.likes.count()
 
     @property
     def nb_of_comments(self) -> int:
+        """ Return the number of comments for this post. """
         return self.comments.count()
 
     @property
     def nb_of_reports(self) -> int:
+        """ Return the number of reports for this post. """
         return self.reports.count()
 
-    def is_liked_by(self, user: CustomUser) -> bool:
-        """ Returns True if the user has liked the post. """
-        return self.likes.filter(user=user).exists()
-
-    def is_reported_by(self, user: CustomUser) -> bool:
-        """ Returns True if the user has reported the post. """
-        return self.reports.filter(user=user).exists()
-
+    # noinspection PyTypeChecker
     @property
     def short_text(self) -> str:
         """ Returns the first 40 characters of the post's text. """
-        MAX_LENGTH = 40
+        MAX_LENGTH = 37  # 40 characters - 3 dots
         if len(self.text) > MAX_LENGTH:
             return self.text[:MAX_LENGTH] + '...'
         else:
@@ -89,8 +96,8 @@ class Comment(models.Model):
     author: CustomUser = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                            related_name="comments", verbose_name='auteur')
     text = models.TextField(max_length=300)
-    created_at = models.DateTimeField("date de creation", auto_now_add=True)
     is_anonymous = models.BooleanField("commentaire anonyme", default=True)
+    created_at = models.DateTimeField("date de creation", auto_now_add=True)
 
     objects: Manager
 
@@ -99,16 +106,24 @@ class Comment(models.Model):
         verbose_name_plural = "commentaires"
 
         permissions = (
-            ('delete_other_users_comments', 'Can delete other users\' comments'),
-            ('edit_other_users_comments', 'Can edit other users\' comments'),
-            ('hide_unhide_comments', 'Can hide/unhide comments'),
-            ('view_hidden_comments', 'Can view hidden comments'),
+            # user permission
+            ("add_comments", "Peut ajouter des commentaires"),
+            ("delete_own_comments", "Peut supprimer ses commentaires"),
+
+            # moderator permission
+            ("delete_comments_from_other_users", "Peut supprimer les commentaires des autres (sans voir l'auteur)"),
+
+            # admin permission
+            ("view_comments_details", "Peut voir les détails des commentaires (dont l'auteur)"),
         )
 
+        default_permissions = ()
+
+    # noinspection PyTypeChecker
     @property
     def short_text(self) -> str:
         """ Returns the first 40 characters of the post's text. """
-        MAX_LENGTH = 40
+        MAX_LENGTH = 37  # 40 characters - 3 dots
         if len(self.text) > MAX_LENGTH:
             return self.text[:MAX_LENGTH] + '...'
         else:
@@ -119,7 +134,8 @@ class Comment(models.Model):
 
 
 class PostReport(models.Model):
-    MAX_REPORT_COUNT = 3
+    # threshold beyond which the publication is hidden
+    REPORTS_CRITICAL_THRESHOLD = 3
 
     post: Post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="reports", verbose_name="post signalé")
     user: CustomUser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -137,38 +153,44 @@ class PostReport(models.Model):
         verbose_name_plural = "signalements"
 
         permissions = (
-            ('reset_reports', 'Can reset reports'),
-            ('view_reports', 'Can view reports'),
+            # user permission
+            ("report_posts", "Peut signaler des posts"),
         )
+
+        default_permissions = ()
 
     def validate_unique(self, exclude: iter = None) -> None:
         """ Check you can't report the same post twice """
         if PostReport.objects.filter(post=self.post, user=self.user).exists():
-            raise ValidationError("Vous avez déjà signalé ce post")
+            raise ValidationError("The post has already been reported by this user.", code='unique_report_post_user')
         super().validate_unique(exclude)
 
     def clean(self) -> None:
         """ Check you can't report your own post """
         if self.post.author == self.user:
-            raise ValidationError("Vous ne pouvez pas signaler votre propre post")
+            raise ValidationError("The post author can't report his own post.", code='author_post')
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, **kwargs) -> None:
         """ Override save method to prevent more than 3 reports per post """
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(**kwargs)
 
-        if self.post.reports.count() >= PostReport.MAX_REPORT_COUNT:
+        self.post.status = Post.AWAITING_VERIFICATION
+
+        if self.post.nb_of_reports >= self.REPORTS_CRITICAL_THRESHOLD:
             self.post.status = Post.HIDDEN
-            self.post.save()
-            log.info(f"Post {self.post.id} has been hidden because it has been reported too many times")
+            log.info(
+                    f"Post {self.post.id} has been hidden because it has been reported {self.post.nb_of_reports} times.")
+
+        self.post.save()
 
     def __repr__(self) -> str:
         return f'{self.post} - {self.user.username}'
 
 
 class Like(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes", verbose_name="post aimé")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             related_name="likes", verbose_name="utilisateur aimant")
+    post: Post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes", verbose_name="post aimé")
+    user: CustomUser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                         related_name="likes", verbose_name="utilisateur aimant")
     created_at = models.DateTimeField("date", auto_now_add=True)
 
     objects: Manager
@@ -182,9 +204,11 @@ class Like(models.Model):
         verbose_name_plural = "likes"
 
         permissions = (
-            ('reset_likes', 'Can reset likes'),
-            ('view_likes', 'Can view likes'),
+            # user permission
+            ("like_posts", "Peut aimer des posts"),
         )
+
+        default_permissions = ()
 
     def validate_unique(self, exclude: iter = None) -> None:
         """ Check you can't like the same post twice """

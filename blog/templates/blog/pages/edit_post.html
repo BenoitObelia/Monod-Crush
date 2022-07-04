@@ -9,7 +9,7 @@
 
 <div class="is-flex is-justify-content-space-between">
     <h1 class="title">Edition de post</h1>
-    <form action="{% url 'blog:delete-post' post_id=post.id %}" method="post">
+    <form action="{% url 'blog:delete-post' pk=post.id %}" method="post">
         {% csrf_token %}
         <button class="button is-danger is-outlined" onclick="return confirm('Etes vous sûr ?');">
             <span>Supprimer</span>

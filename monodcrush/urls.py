@@ -20,7 +20,5 @@ urlpatterns = [
     path('', include('blog.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include("auth.urls")),
-    path('instamap/', include("instamap.urls")),
     path('about/', include("about.urls")),
-
 ]

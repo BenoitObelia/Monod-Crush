@@ -8,6 +8,7 @@ from django.utils.timezone import now
 register = template.Library()
 
 
+# noinspection SpellCheckingInspection
 @register.filter
 def naturaltimeordate(value: datetime) -> str:
     """

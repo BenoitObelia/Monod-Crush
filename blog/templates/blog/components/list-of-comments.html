@@ -1,0 +1,5 @@
+<div id="comments-post-{{ post_id }}" class="mt-3">
+    {% for comment in object_list %}
+    {% include 'blog/components/comment.html' %}
+    {% endfor %}
+</div>

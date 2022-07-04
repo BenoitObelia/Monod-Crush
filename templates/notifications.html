@@ -1,21 +1,30 @@
 {# show error/info message send by server #}
 
-{# create dictionary to map alert level and css class  #}
-
-{% comment %}
-{% set level_class = {
-'debug': '',
-'info': 'is-info',
-'success': 'is-success',
-'warning': 'is-warning',
-'error': 'is-danger'
-} %}
-{% endcomment %}
-
 {% if messages %}
-<ul class="messages">
+<div class="content">
     {% for message in messages %}
-    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}> {{ message }}</li>
+
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+    <article class="message is-info">
+        <div class="message-body">{{ message }}</div>
+    </article>
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <article class="message is-success">
+        <div class="message-body">{{ message }}</div>
+    </article>
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+    <article class="message is-warning">
+        <div class="message-body">{{ message }}</div>
+    </article>
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+    <article class="message is-danger">
+        <div class="message-body">{{ message }}</div>
+    </article>
+    {% else %}
+    <article class="message">
+        <div class="message-body">{{ message }}</div>
+    </article>
+    {% endif %}
     {% endfor %}
-</ul>
+</div>
 {% endif %}

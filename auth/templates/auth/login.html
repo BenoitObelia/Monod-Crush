@@ -11,7 +11,7 @@
 <article class="message is-info">
     <div class="message-body">
         {% if user.is_authenticated %}
-        <p>Vous n'avez pas le droit d'accéder à cette page, connectez-vous avec un compte ayant des droits
+        <p>Vous n’avez pas le droit d’accéder à cette page, connectez-vous avec un compte ayant des droits
             supérieurs</p>
         {% else %}
         <p>Connectez vous pour accéder à cette page</p>
@@ -24,7 +24,7 @@
 {% if form.errors %}
 <article class="message is-danger">
     <div class="message-body">
-        <p>Nom d'utilisateur ou mot de passe incorrect</p>
+        <p>Nom d’utilisateur ou mot de passe incorrect</p>
     </div>
 </article>
 {% endif %}
@@ -49,7 +49,7 @@
     </div>
 
     <div class="field">
-        <p><a href="{% url 'auth:register' %}">Je n'ai pas de compte</a></p>
+        <p><a href="{% url 'auth:register' %}">Je n’ai pas de compte</a></p>
         <p><a href="{% url 'auth:password_reset' %}">Mot de passe oublié ?</a></p>
     </div>
     

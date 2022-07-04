@@ -6,7 +6,7 @@
         {% if comment.is_anonymous %}
         un utilisateur anonyme
         {% else %}
-        <a href="{% url 'blog:profile' username=post.author.username %}">@{{ comment.author.username }}</a>
+        <a href="{% url 'blog:profile' username=comment.author.username %}">@{{ comment.author.username }}</a>
         {% endif %}
         {{ comment.created_at|naturaltimeordate }}
     </p>

@@ -1,0 +1,46 @@
+{% load static %}
+
+{% if post.nb_of_comments == 0 and not user.is_authenticated  %}
+<div>
+    <p class="is-inline-block">
+        <span class="nb-of-comment"> 0 commentaire </span>
+    </p>
+</div>
+{% else %}
+<div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' x-data="{ open: false }">
+    {% if post.nb_of_comments > 0 %}
+    <p class="is-clickable is-inline-block" @click="open = !open"
+       hx-get="{% url 'blog:get-comments' pk=post.id %}" hx-trigger="click once"
+       hx-target="#comments-post-{{ post.id }}" hx-swap="outerHTML">
+        <span class="nb-of-comment">{{ post.nb_of_comments }} commentaire{% if post.nb_of_comments > 1 %}s{% endif %}</span>
+        <img src="{% static 'icons/down-arrow.svg' %}" alt="down-arrow" class="down-arrow">
+    </p>
+    {% else %}
+    <p class="is-clickable is-inline-block" @click="open = !open">
+        <span class="nb-of-comment">{{ post.nb_of_comments }} commentaire{% if post.nb_of_comments > 1 %}s{% endif %}</span>
+        <img src="{% static 'icons/down-arrow.svg' %}" alt="down-arrow" class="down-arrow">
+    </p>
+    {% endif %}
+
+    <div x-show="open" x-collapse hidden>
+        {% if user.is_authenticated %}
+        <form class="my-2"
+<!-- TODO              @submit.prevent="$event.target.reset()" -->
+              hx-post="{% url 'blog:add-comment' pk=post.id %}"
+              hx-target="#comments-post-{{ post.id }}" hx-swap="afterbegin ">
+
+            <div class="field has-addons">
+                <div class="control is-expanded">
+                    <input class="input" name="text" type="text" placeholder="Ajouter un commentaire..."
+                           value="" maxlength="280" required>
+                </div>
+                <div class="control">
+                    <button class="button is-success">Publier</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+        <div id="comments-post-{{ post.id }}"></div>
+    </div>
+</div>
+{% endif %}

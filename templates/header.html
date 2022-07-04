@@ -1,78 +1,77 @@
 {% load static %}
-<nav class="navbar" role="navigation" aria-label="main navigation"
-     x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
-    <div class="navbar-brand">
-        <a class="navbar-item" href="{% url 'blog:index' %}">
-            <img src="{% static 'images/logo.png' %}" alt="Monod Crush logo">
-        </a>
+<header>
+    <nav class="navbar" role="navigation" aria-label="main navigation"
+         x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="{% url 'blog:index' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Monod Crush logo" width="28px" height="28px">
+            </a>
 
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
-           @click="menuOpen = !menuOpen" :class="{ 'is-active': menuOpen }">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-    </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+               @click="menuOpen = !menuOpen" :class="{ 'is-active': menuOpen }">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
 
-    <div class="navbar-menu" :class="{ 'is-active': menuOpen }">
-        <div class="navbar-start">
-            <a class="navbar-item" href="{% url 'blog:index' %}">Home</a>
-            <a class="navbar-item" href="{% url 'instamap:index' %}">Insta Map</a>
+        <div class="navbar-menu" :class="{ 'is-active': menuOpen }">
+            <div class="navbar-start">
+                <a class="navbar-item" href="{% url 'blog:index' %}">Home</a>
 
-            <div class="navbar-item has-dropdown" :class="{ 'is-active': dropOpen }" x-data="{ dropOpen: false }"
-                 @mouseover="if(window.innerWidth > 1025) {dropOpen = true}" @mouseleave="dropOpen = false">
+                <div class="navbar-item has-dropdown" :class="{ 'is-active': dropOpen }" x-data="{ dropOpen: false }"
+                     @mouseover="if(window.innerWidth > 1025) {dropOpen = true}" @mouseleave="dropOpen = false">
 
-                <span class="navbar-link" @click="if(window.innerWidth < 1025) {dropOpen = !dropOpen}">Plus</span>
+                    <span class="navbar-link" @click="if(window.innerWidth < 1025) {dropOpen = !dropOpen}">Plus</span>
 
-                <div class="navbar-dropdown" :class="{ 'is-hidden': !dropOpen }">
-                    <a class="navbar-item" href="{% url 'about:contact' %}">Contact</a>
-                    <hr class="navbar-divider">
-                    <a class="navbar-item" href="{% url 'about:suggestions' %}">Suggestions</a>
-                    <a class="navbar-item" href="{% url 'about:suggestions' %}">Signaler un bug</a>
+                    <div class="navbar-dropdown" :class="{ 'is-hidden': !dropOpen }">
+                        <a class="navbar-item" href="{% url 'about:contact' %}">Contact</a>
+                        <hr class="navbar-divider">
+                        <a class="navbar-item" href="{% url 'about:who-are-we' %}">Qui sommes-nous ?</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                <form class="navbar-item" method="get" action="{% url 'blog:search' %}">
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input class="input" name="q" type="text" placeholder="Rechercher...">
+                        </div>
+                        <div class="control">
+                            <button class="button" type="submit" aria-label="Rechercher">
+                                <img src="{% static 'icons/search.svg' %}" height="20px" width="20px" alt="Rechercher">
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="navbar-item">
+                    <div class="buttons">
+
+                        {% if user.is_authenticated %}
+                        <a class="button is-link is-inverted" href="{% url 'blog:profile' username=user.username %}">
+                            {{ user.username }}
+                        </a>
+
+                        {% if user.is_staff %}
+                        <a class="button is-link" href="{% url 'admin:index' %}"> Staff </a>
+                        <a class="button is-link" href="{% url 'blog:moderation' %}"> Mod </a>
+                        {% endif %}
+
+                        <form action="{% url 'auth:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="button is-link is-light"> Se déconnecter</button>
+                        </form>
+                        {% else %}
+                        <a class="button is-link" href="{% url 'auth:register' %}"> Créer un compte</a>
+                        <a class="button is-link is-light" href="{% url 'auth:login' %}"> Se connecter </a>
+
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="navbar-end">
-            <form class="navbar-item" method="get" action="{% url 'blog:search' %}">
-                <div class="field has-addons">
-                    <div class="control">
-                        <input class="input" name="q" type="text" placeholder="Rechercher...">
-                    </div>
-                    <div class="control">
-                        <button class="button" type="submit" aria-label="Rechercher">
-                            <img class="empty-heart" src="{% static 'icons/search.svg' %}"
-                                 height="18px" width="18px" alt="Rechercher">
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-            <div class="navbar-item">
-                <div class="buttons">
-
-                    {% if user.is_authenticated %}
-                    <a class="button is-link is-inverted" href="{% url 'blog:profile' username=user.username %}">
-                        {{ user.username }}
-                    </a>
-
-                    {% if user.is_staff %}
-                    <a class="button is-link" href="{% url 'admin:index' %}"> Staff </a>
-                    <a class="button is-link" href="{% url 'blog:moderation' %}"> Mod </a>
-                    {% endif %}
-
-                    <form action="{% url 'auth:logout' %}" method="post">
-                        {% csrf_token %}
-                        <button class="button is-link is-light"> Se déconnecter</button>
-                    </form>
-                    {% else %}
-                    <a class="button is-link" href="{% url 'auth:register' %}"> Créer un compte</a>
-                    <a class="button is-link is-light" href="{% url 'auth:login' %}"> Se connecter </a>
-
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
+    </nav>
+</header>
 

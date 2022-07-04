@@ -11,24 +11,23 @@
     <meta name="description" content="Monod Crush, à la recherche de rencontre, tu es au bon endroit.">
 
     <!-- css -->
-    <link rel="stylesheet" href="{% static 'styles/bulma.min.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/bulma-0.9.4.min.css' %}">
     <link rel="stylesheet" href="{% static 'styles/style.css' %}">
-
-    <!-- icons -->
-    <link rel="stylesheet" href="https://bulma.io/vendor/fontawesome-free-5.15.2-web/css/all.min.css">
 
     <!-- favicon -->
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
 
     <!-- scripts -->
     {% block scripts %}
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{% static 'scripts/alpinejs-collapse-3.10.2.min.js' %}"></script>
+    <script defer src="{% static 'scripts/alpinejs-3.10.2.min.js' %}"></script>
+    <script defer src="{% static 'scripts/htmx-1.7.0.min.js' %}"></script>
     {% endblock scripts %}
 
     <!-- title -->
     <title>{% block full_title %}{% block title %}{% endblock %} - MonodCrush{% endblock %}</title>
 
-    {% block head %} {% endblock head %}
+    {% block head %}{% endblock head %}
 </head>
 
 {% block body %}
@@ -48,7 +47,7 @@
         {% include 'notifications.html' %}
         {% endblock notif %}
 
-        {% block content %} {% endblock content %}
+        {% block content %}{% endblock content %}
 
     </div>
 </section>

@@ -15,17 +15,39 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-LOGGING = {
+LLOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
     'handlers': {
         'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            "propagate": False,
         },
+        'blog': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            "propagate": False,
+        }, 'about': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            "propagate": False,
+        }
     },
     'root': {
+        'level': 'INFO',
         'handlers': ['console'],
-        'level': 'DEBUG',
     },
 }
 
@@ -45,10 +67,7 @@ ALLOWED_HOSTS = ["dev.monodcrush.fr", "monodcrush.fr", "localhost", "127.0.0.1"]
 INSTALLED_APPS = [
     'auth.apps.AuthConfig',
     'blog.apps.BlogConfig',
-    'instamap.apps.InstamapConfig',
     'about.apps.AboutConfig',
-
-    'django.contrib.humanize',
 
     'widget_tweaks',
 
@@ -58,6 +77,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

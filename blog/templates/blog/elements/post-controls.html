@@ -1,0 +1,65 @@
+{% load static %}
+
+{% if user.is_authenticated %}
+<div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <div class="dropdown is-right"
+         :class="show ? 'is-active' : ''" @click.outside="show = false" x-data="{ show : false }">
+        <div class="dropdown-trigger">
+            <button @click="show =! show" class="button" aria-haspopup="true" aria-label="dropdown button">
+                <span class="icon is-small">
+                    <img src="{% static 'icons/dots-vertical.svg' %}" alt="dots">
+                </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" role="menu">
+            <div class="dropdown-content">
+                {% if post.author == user or user.is_superuser%}
+                <a class="dropdown-item is-flex is-align-items-center has-text-link"
+                   href="{% url 'blog:edit-post' pk=post.id %}">
+                    <img class="mr-2" src="{% static 'icons/pencil.svg' %}" alt="dots" width="20px">
+                    <p>Modifier</p>
+                </a>
+                <a class="dropdown-item is-flex is-align-items-center has-text-danger"
+                   hx-post="{% url 'blog:delete-post' pk=post.id %}"
+                   hx-swap="delete swap:1s" hx-target="#post-{{ post.id }}"
+                   hx-confirm="Êtes-vous sûr de vouloir supprimer ce post ?"
+                   href="#">
+                    <img class="mr-2" src="{% static 'icons/trash-can.svg' %}" alt="trash" width="20px">
+                    <p>Supprimer</p>
+                </a>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                <a class="dropdown-item is-flex is-align-items-center"
+                   hx-post="{% url 'blog:hide-post' pk=post.id %}"
+                   hx-swap="delete swap:1s" hx-target="#post-{{ post.id }}"
+                   hx-confirm="Êtes-vous sûr de vouloir masquer ce post ?"
+                   href="#">
+                    <img class="mr-2" src="{% static 'icons/eye-off.svg' %}" alt="eye" width="20px">
+                    <p>Masquer</p>
+                </a>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                <a class="dropdown-item is-flex is-align-items-center"
+                   href="{% url 'admin:blog_post_change' post.id %}">
+                    <img class="mr-2" src="{% static 'icons/shield-half-full.svg' %}" alt="shield" width="20px">
+                    <p>Infos</p>
+                </a>
+                {% endif %}
+
+                {% if not user.is_superuser and not post.author == user %}
+                <a class="dropdown-item is-flex is-align-items-center has-text-danger"
+                   hx-post="{% url 'blog:report-post' pk=post.id %}"
+                   hx-swap="none"
+                   hx-confirm="Êtes-vous sûr de vouloir signaler ce post ?"
+                   href="#">
+                    <img class="mr-2" src="{% static 'icons/cancel.svg' %}" alt="cancel" width="20px">
+                    <p>Signaler</p>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

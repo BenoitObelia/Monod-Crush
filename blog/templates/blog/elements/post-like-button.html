@@ -1,8 +1,9 @@
 {% load static %}
 
 {% if user.is_authenticated %}
-<button class="button mt-2 is-danger" hx-post="{% url 'blog:like-post' post_id=post.id %}"
-        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-swap="outerHTML" aria-label="Like">
+<button class="button mt-2 is-danger" aria-label="Like"
+        hx-post="{% url 'blog:like-post' pk=post.id %}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-swap="outerHTML">
     <span class="mr-2 {% if post.nb_of_likes == 0 %} is-hidden {% endif %}">{{ post.nb_of_likes }}</span>
     <span class="icon-text is-small">
         {% if post.liked %}

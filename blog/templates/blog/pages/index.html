@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block full_title %}MonodCrush{% endblock %}
+
+{% block h1 %}Posts{% endblock %}
+
+{% block content %}
+<div>
+    <a class="button is-success is-medium has-text-grey-darker has-text-weight-medium" href="{% url 'blog:new-post' %}">New</a>
+
+    {% if object_list|length == 0 %}
+    <h3 class="title is-4 my-6">Il n'y pas encore de post soyez le premier à en poster un...</h3>
+    {% else %}
+    {% include 'blog/components/list-of-posts.html' with posts=page_obj %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+        {% if page_obj.has_previous %}
+        <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+        {% endif %}
+
+        <ul class="pagination-list">
+            {% if page_obj.number >= 3 %}
+            <li><a class="pagination-link" href="?page=1" aria-label="Goto first page">1</a></li>
+            <li><span class="pagination-ellipsis">&hellip;</span></li>
+            {% endif %}
+
+            {% if page_obj.has_previous %}
+            <li><a class="pagination-link" href="?page={{ page_obj.previous_page_number }}"
+                   aria-label="Goto page {{ page_obj.previous_page_number }}"> {{ page_obj.previous_page_number }}</a>
+            </li>
+            {% endif %}
+
+            <li><a class="pagination-link is-current" href="#" aria-label="Page {{ page_obj.number }}"
+                   aria-current="page">{{ page_obj.number }}</a></li>
+
+            {% if page_obj.has_next %}
+            <li><a class="pagination-link" href="?page={{ page_obj.next_page_number }}"
+                   aria-label=" Goto page {{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+            {% endif %}
+
+            {% if page_obj.number|add:2 <= page_obj.paginator.num_pages %}
+            <li><span class="pagination-ellipsis">&hellip;</span></li>
+            <li><a class="pagination-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Goto last page">
+                {{ page_obj.paginator.num_pages }}</a>
+            </li>
+            {% endif %}
+        </ul>
+
+        {% if page_obj.has_next %}
+        <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+    {% endif %}
+
+
+</div>
+{% endblock %}

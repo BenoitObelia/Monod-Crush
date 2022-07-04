@@ -1,12 +1,15 @@
+import logging
 from datetime import date
 from typing import Any
 
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin, UserManager
+from django.contrib.auth.models import PermissionsMixin, UserManager, Group, Permission
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models.functions import Lower
+from django.db.models.signals import post_save, post_migrate
+from django.dispatch import receiver
 
 from .validators import username_validator, date_of_birth_validator, instagram_validator, twitter_validator
 
@@ -93,3 +96,30 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def is_birthday(self) -> bool:
         """ Return True if the user is a birthday."""
         return self.date_of_birth.month == date.today().month and self.date_of_birth.day == date.today().day
+
+
+@receiver(post_save, sender=CustomUser)
+def create_user_profile(sender, instance, created, **kwargs):
+    """ Add all new users to the "default_user" group """
+    if created:
+        default_user: Group = Group.objects.get_or_create(name='default_user')[0]
+
+        instance.groups.add(default_user)
+
+        # Create the default group once at the beginning of the project.
+
+        permission = ("create_posts",
+                      "edit_own_posts",
+                      "delete_own_posts",
+
+                      "add_comments",
+                      "delete_own_comments",
+
+                      "report_posts",
+
+                      "like_posts")
+
+        for p in permission:
+            default_user.permissions.add(Permission.objects.get(codename=p))
+
+        Group.objects.get_or_create(name='modérateur')

@@ -1,13 +1,14 @@
 {% load datetimeformat %}
+
 <article class="my-5 fade-out" id="post-{{ post.id }}">
     <div class="card">
         <div class="card-content">
             <div class="is-flex is-justify-content-space-between">
-                {% include 'blog/components/post-body.html' %}
-                {% include 'blog/components/post-controls.html' %}
+                {% include 'blog/elements/post-body.html' %}
+                {% include 'blog/elements/post-controls.html' %}
             </div>
-            {% include 'blog/partials/post-comments-area.html' %}
+            {% include 'blog/elements/post-comments-area.html' %}
         </div>
     </div>
-    {% include 'blog/components/post-like-button.html' %}
+    {% include 'blog/elements/post-like-button.html' %}
 </article>
